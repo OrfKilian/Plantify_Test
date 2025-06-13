@@ -12,7 +12,14 @@ from smartplant_api.users import users_blueprint
 from smartplant_api.plants import plants_blueprint
 from smartplant_api.authorization import authorization_blueprint
 
-app = Flask(__name__)
+# Configure Flask to look for templates and static files in the project level
+# directories so ``render_template`` can find files like ``login.html`` which
+# live outside of the ``smartplant_api`` package.
+app = Flask(
+    __name__,
+    template_folder="../../templates",
+    static_folder="../../static",
+)
 app.secret_key = 'super-geheim'
 
 # Datenbankkonfiguration für die SmartPlant-API
