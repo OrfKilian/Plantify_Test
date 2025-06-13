@@ -1,5 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from functools import wraps
+import sys
+from pathlib import Path
+
+# Add the parent directory to sys.path when executed directly
+if __package__ is None:
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from smartplant_api.views import views_blueprint
 from smartplant_api.users import users_blueprint
