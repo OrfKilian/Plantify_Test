@@ -29,19 +29,7 @@ def create_table_if_not_exists():
             )
         """)
         
-        # Beispieldaten hinzufügen, falls die Tabelle leer ist
-        cursor.execute("SELECT COUNT(*) FROM pflanzen")
-        count = cursor.fetchone()[0]
-        
-        if count == 0:
-            sample_plants = [
-                ("Rose",),
-                ("Tulpe",),
-                ("Sonnenblume",),
-                ("Lavendel",),
-                ("Basilikum",)
-            ]
-            cursor.executemany("INSERT INTO pflanzen (name) VALUES (?)", sample_plants)
+        # Tabelle anlegen, falls sie noch nicht existiert
         
         conn.commit()
         cursor.close()
@@ -56,22 +44,12 @@ def create_table_if_not_exists():
 def get_all_plants():
     # Zunächst versuchen, die Tabelle zu erstellen
     if not create_table_if_not_exists():
-        # Fallback: Statische Liste zurückgeben, wenn DB nicht verfügbar
-        print("Datenbank nicht verfügbar. Verwende Fallback-Daten.")
-        return [
-            {'id': 1, 'name': 'Rose'},
-            {'id': 2, 'name': 'Tulpe'},
-            {'id': 3, 'name': 'Sonnenblume'}
-        ]
+        print("Datenbank nicht verfügbar.")
+        return []
     
     conn = get_connection()
     if conn is None:
-        # Fallback falls Verbindung fehlschlägt
-        return [
-            {'id': 1, 'name': 'Rose'},
-            {'id': 2, 'name': 'Tulpe'},
-            {'id': 3, 'name': 'Sonnenblume'}
-        ]
+        return []
     
     try:
         cursor = conn.cursor()
@@ -84,12 +62,7 @@ def get_all_plants():
         print(f"Fehler beim Abrufen der Pflanzen: {e}")
         if conn:
             conn.close()
-        # Fallback bei SQL-Fehlern
-        return [
-            {'id': 1, 'name': 'Rose'},
-            {'id': 2, 'name': 'Tulpe'},
-            {'id': 3, 'name': 'Sonnenblume'}
-        ]
+        return []
 
 if __name__ == '__main__':
     plants = get_all_plants()

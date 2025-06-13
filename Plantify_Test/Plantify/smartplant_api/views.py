@@ -7,16 +7,22 @@ def get_db_cursor():
     return connection, cursor
 
 def fetch_query_results(query, pot_id, fetchone=False):
-    # Immer Dummy-Daten zurückgeben – unabhängig vom Testmodus
-    dummy_data = {
-        "created": "2025-06-13 12:00:00",
-        "temperature": 22.5,
-        "air_humidity": 40.0,
-        "ground_humidity": 35.5,
-        "HoS": 6.0,
-        "pot_id": pot_id
-    }
-    return jsonify(dummy_data if fetchone else [dummy_data])
+    """Execute the given SQL query and return the result as JSON."""
+    connection = None
+    try:
+        connection, cursor = get_db_cursor()
+        cursor.execute(query, (pot_id,))
+        result = cursor.fetchone() if fetchone else cursor.fetchall()
+        cursor.close()
+        connection.close()
+        # If fetchone returned None, provide an empty object instead of null
+        if fetchone:
+            return jsonify(result or {})
+        return jsonify(result)
+    except mysql.connector.Error as err:
+        if connection:
+            connection.close()
+        return jsonify({"error": str(err)}), 500
 
 views_blueprint = Blueprint('views', __name__)
 

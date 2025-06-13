@@ -2,15 +2,6 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/items')
         .then(response => response.json())
         .then(data => {
-            // Sortierung wie auf Screenshot 2
-            const sortOrder = [
-                "monstera", "strelitzie", "orchidee", "tomate", "orchidee 2", "monstera 2"
-            ];
-            data.sort((a, b) => {
-                const aIdx = sortOrder.indexOf(a.name.toLowerCase());
-                const bIdx = sortOrder.indexOf(b.name.toLowerCase());
-                return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
-            });
 
             const list = document.getElementById('sidebar-list');
             list.innerHTML = '';

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, j
 from functools import wraps
 import sys
 from pathlib import Path
+import mysql.connector
 
 # Add the parent directory to sys.path when executed directly
 if __package__ is None:
@@ -29,14 +30,6 @@ app.register_blueprint(users_blueprint, url_prefix='/api')
 app.register_blueprint(plants_blueprint, url_prefix='/api')
 app.register_blueprint(authorization_blueprint, url_prefix='/api')
 
-# Dummy Items für Sidebar
-ITEMS = [
-    {"name": "Tomate"},
-    {"name": "Orchidee"},
-    {"name": "Monstera"},
-    {"name": "Strelitzie"},
-    {"name": "Orchidee"},
-]
 
 # --- Login-Decorator für geschützte Seiten ---
 def login_required(f):
@@ -72,7 +65,19 @@ def logout():
 # API für Sidebar
 @app.route('/api/items')
 def api_items():
-    return jsonify(ITEMS)
+    connection = None
+    try:
+        connection = mysql.connector.connect(**app.config['DB_CONFIG'])
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT name FROM plant")
+        items = [{"name": row["name"]} for row in cursor.fetchall()]
+        cursor.close()
+        connection.close()
+        return jsonify(items)
+    except mysql.connector.Error as err:
+        if connection:
+            connection.close()
+        return jsonify({"error": str(err)}), 500
 
 # Item-Detailseite (Platzhalter)
 @app.route('/pflanze/<name>')
